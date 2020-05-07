@@ -10,5 +10,8 @@ public class ProjCoreStrTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		ExtraModuleNames.AddRange( new string[] { "ProjCoreStr" } );
+
+		bUseUnityBuild = false;
+		bUsePCHFiles = false;
 	}
 }

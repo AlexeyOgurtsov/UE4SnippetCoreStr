@@ -3,12 +3,15 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class ProjCoreStrTarget : TargetRules
+public class ProjCoreStrEditorTarget : TargetRules
 {
-	public ProjCoreStrTarget(TargetInfo Target) : base(Target)
+	public ProjCoreStrEditorTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Game;
+		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
 		ExtraModuleNames.AddRange( new string[] { "ProjCoreStr" } );
+
+		bUseUnityBuild = false;
+		bUsePCHFiles = false;
 	}
 }

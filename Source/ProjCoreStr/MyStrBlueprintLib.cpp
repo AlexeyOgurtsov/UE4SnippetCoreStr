@@ -150,6 +150,8 @@ void UMyStrBlueprintLib::DoConstruct_NameFrom_CString()
 	// Initialize FName
 	static FName DefaultPlayerName { TEXT("DefaultPlayer"), FNAME_Add };
 	static FName DefaultPlayerName2 { TEXT("DefaultPlayer"), FNAME_Add };
+	static FName DefaultPlayerName3 = TEXT("DefaultPlayer");
+	static FName DefaultPlayerName4 = "DefaultPlayer";
 	check(DefaultPlayerName == DefaultPlayerName2); //?
 
 	static const TCHAR* PlayerNameToSearchString = TEXT("DefaultPlayer");
@@ -200,22 +202,37 @@ void UMyStrBlueprintLib::DoFormat()
 {
 	UE_LOG(MyLibLog, Log, TEXT("UMyStrBlueprintLib::DoFormat"));
 
-	// Both FString and C-String works
-	TArray<FStringFormatArg> MyMsgArgs;
-	MyMsgArgs.Add(FStringFormatArg(TEXT("Vasya")));
-	MyMsgArgs.Add(FStringFormatArg(FString(TEXT("GetStatus"))));
-	MyMsgArgs.Add(FStringFormatArg(15.1F));
+	{
+		// Both FString and C-String works
+		TArray<FStringFormatArg> MyMsgArgs;
+		MyMsgArgs.Add(FStringFormatArg(TEXT("Vasya")));
+		MyMsgArgs.Add(FStringFormatArg(FString(TEXT("GetStatus"))));
+		MyMsgArgs.Add(FStringFormatArg(15.1F));
 
-	// {0}, {1}, {2} - Args
-	FString MyMsg = FString::Format(TEXT("Hello, {0}: cmd={1}; temperature={2}"), MyMsgArgs);
+		// {0}, {1}, {2} - Args
+		FString MyMsg = FString::Format(TEXT("Hello, {0}: cmd={1}; temperature={2}"), MyMsgArgs);
 
-	// Arguments as TMap
-	TMap<FString,FStringFormatArg> MyMsgArgsMap;
-	MyMsgArgsMap.Add(FString(TEXT("Name")), FStringFormatArg(TEXT("Vasya")));
-	MyMsgArgsMap.Add(FString(TEXT("Status")),FStringFormatArg(FString(TEXT("GetStatus"))));
-	MyMsgArgsMap.Add(FString(TEXT("Temp")), FStringFormatArg(15.1F));
+		// Arguments as TMap
+		TMap<FString,FStringFormatArg> MyMsgArgsMap;
+		MyMsgArgsMap.Add(FString(TEXT("Name")), FStringFormatArg(TEXT("Vasya")));
+		MyMsgArgsMap.Add(FString(TEXT("Status")),FStringFormatArg(FString(TEXT("GetStatus"))));
+		MyMsgArgsMap.Add(FString(TEXT("Temp")), FStringFormatArg(15.1F));
 
-	FString MyMsgByMap = FString::Format(TEXT("Hello, {Name}: cmd={Status}; temperature={Temp}"), MyMsgArgsMap);
+		FString MyMsgByMap = FString::Format(TEXT("Hello, {Name}: cmd={Status}; temperature={Temp}"), MyMsgArgsMap);
+	}
+
+	{
+		// Formatting FText:
+		const FText Value = FText::FromString("Val");
+
+		const FText Key = FText::FromString(TEXT("TheKey"));
+		const FText FormatResult = FText::Format(FText::FromString("Key=\"{0}\" Value=\"{1}\""), Key, Value);
+
+		//const FString StringKey = TEXT("TheKey");
+		//const FText FormatResult = FText::Format(FText::FromString("Key=\"{0}\" Value=\"{1}\""), StringKey, Value);
+
+		//M_LOG(TEXT("FText::Format result: %s"), *FormatResult.ToString());
+	}
 }
 
 void UMyStrBlueprintLib::DoPrintf()
@@ -284,11 +301,23 @@ void UMyStrBlueprintLib::DoAppend()
 {
 	UE_LOG(MyLibLog, Log, TEXT("UMyStrBlueprintLib::DoAppend"));
 
-	FString S { TEXT("") };
-	S.Append(FString(TEXT("Count=")));
-	S.AppendInt(32);
+	FString S { TEXT("PREF_") };
+	FText T = FText::FromString( TEXT("PREF_") );
+
+	{
+		// Appending to string 
+		S.Append(FString(TEXT("Count=")));
+		S.AppendInt(32);
+	}
+
+	{
+		// Appending to text 
+		// WARNING: Append: "Undeclared identifier" for FText!!!
+		T = FText::Format(FText::FromString("{0} {1}"), T, FText::FromString(TEXT("Count=")));
+	}
 
 	UE_LOG(MyLibLog, Log, TEXT("S=\"%s\""), *S);
+	UE_LOG(MyLibLog, Log, TEXT("T=\"%s\""), *T.ToString());
 }
 
 void UMyStrBlueprintLib::DoInsert()
@@ -310,7 +339,7 @@ void UMyStrBlueprintLib::DoFind()
 	{
 		UE_LOG(MyLibLog, Log, TEXT("Last path sep index: %d"), LastPathSepIndex);
 
-		bool bContainsExt = PathToDoc.Find(TEXT("."), ESearchCase::Type::IgnoreCase, ESearchDir::Type::FromEnd, /*out*/LastPathSepIndex);
+		bool bContainsExt = PathToDoc.Find(TEXT("."), ESearchCase::Type::IgnoreCase, ESearchDir::Type::FromEnd, /*out*/LastPathSepIndex) >= 0;
 		UE_LOG(MyLibLog, Log, TEXT("bContainsExt: %s"), (bContainsExt ? TEXT("YES") : TEXT("no")));
 		if(bContainsExt)
 		{
